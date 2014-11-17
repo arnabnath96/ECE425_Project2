@@ -1,105 +1,123 @@
 #include "gates.h"
 #include "graph.h"
 
-static int andt[3][3] = {{0, 0, 0}, {0, 1, 2}, {0, 2, 2}};
-static int nandt[3][3] = {{1, 1, 1}, {1, 0, 2}, {1, 2, 2}}; //NOT USED
-static int ort[3][3] = {{0, 1, 2}, {1, 1, 1}, {2, 1, 2}};
-static int nort[3][3] = {{1, 0, 2}, {0, 0, 0}, {2, 0, 2}}; //NOT USED
-static int xort[3][3] = {{0, 1, 2}, {1, 0, 2}, {2, 2, 2}};
-static int xnort[3][3] = {{1, 0, 2}, {0, 1, 2}, {2, 2, 2}};
-static int buffert[3] = {0, 1, 2};
-static int nott[3] = {1, 0, 2};
-static int fromt[3] = {0, 1, 2};
-
 int andg(int* node_input)
 {
-	int current_value = 1; //Conjunctive Identity
+	int unknown_flag = 0;
 	
     int i = 0;
     for(i=0; i < Min && node_input[i] != -1; i++)
     {
-		current_value = andt[current_value][node_input[i]];
+        if(node_input[i] == 0)
+        {
+            return 0;
+        }
+        if(node_input[i] == 2)
+        {
+            unknown_flag = 1;
+        }
     }
-	return current_value;
+	
+	if(unknown_flag)
+		return 2;
+	else
+		return 1;
 }
 
 int nandg(int* node_input)
 {
-	int current_value = 0; //Disjunctive Identity
+	int and_val = andg(node_input);
 	
-    int i = 0;
-    for(i=0; i < Min && node_input[i] != -1; i++)
+    if (and_val == 2)
     {
-		current_value = ort[current_value][nott[node_input[i]]];
+        return 2;
     }
-	return current_value;
+    return !and_val;
 }
 
 int org(int* node_input)
 {
-	int current_value = 0; //Disjunctive Identity
+	int unknown_flag = 0;
 	
     int i = 0;
     for(i=0; i < Min && node_input[i] != -1; i++)
     {
-		current_value = ort[current_value][node_input[i]];
+        if(node_input[i] == 1)
+        {
+            return 1;
+        }
+        if(node_input[i] == 2)
+        {
+            unknown_flag = 1;
+        }
     }
-	return current_value;
+	if(unknown_flag)
+		return 2;
+	else
+		return 0;
 }
 
 int norg(int* node_input)
 {
-	int current_value = 1; //Conjunctive Identity
+	int or_val = org(node_input);
 	
-    int i = 0;
-    for(i=0; i < Min && node_input[i] != -1; i++)
+    if (or_val == 2)
     {
-		current_value = andt[current_value][nott[node_input[i]]];
+        return 2;
     }
-	return current_value;
+    return !or_val;
 }
 
 int xorg(int* node_input)
 {
-	// 0 XOR A = A -> Compute odd-parity
-	int current_value = 0;
-	
-    int i = 0;
+    int i = 0; int j = 0;
     for(i=0; i < Min && node_input[i] != -1; i++)
     {
-		current_value = xort[current_value][node_input[i]];
+        if(node_input[i] == 1)
+        {
+            j++;
+        }
+
+        if(node_input[i] == 2)
+        {
+            return 2;
+        }
     }
-	return current_value;
+
+    return j % 2;
 }
 
 int xnorg(int* node_input)
 {
-	// 0 XOR A = A -> Compute odd-parity
-	int current_value = 0;
+	int xor_val = xorg(node_input);
 	
-    int i = 1;
-    for(i=0; i < Min && node_input[i] != -1; i++)
+    if (xor_val == 2)
     {
-		current_value = xort[current_value][node_input[i]];
+        return 2;
     }
-	
-	// NOT (Odd-Parity) = (Even-Parity)
-	current_value = nott[current_value]; 
-	
-	return current_value;
+    return !xor_val;
 }
 
 int bufferg(int* node_input)
 {
-	return buffert[node_input[0]];
+	if(node_input[0] == 2)
+		return 2;
+	else
+		return !!node_input[0];
 }
 
 int notg(int* node_input)
 {
-	return nott[node_input[0]];
+	if(node_input[0] == 2)
+		return 2;
+	else
+		return !node_input[0];
 }
 
 int fromg(int* node_input)
 {
-	return fromt[node_input[0]];
+	if(node_input[0] == 2)
+		return 2;
+	else
+		return !!node_input[0];
 }
