@@ -190,4 +190,55 @@ while(!feof(fvec)){
     a++; } }
 return a;
 }//end of readvec
+/*************************************************************************************************
+ Routine to read the .faults files
+*************************************************************************************************/
+#define MAX_FAULTLINE_SIZE 1024
+int ReadFaults(FILE *ffault,FAULT *vector)
+{
+//Holds line read from file
+char line_temp[MAX_FAULTLINE_SIZE];
+
+//Holds stuck-at information prior to storage in structure
+int Snod_temp;
+int Sval_temp;
+
+//Iterate over each fault in the file
+int a = 0;
+while(!feof(ffault)){
+  bzero(line_temp,MAX_FAULTLINE_SIZE);
+  Snod_temp = -1; Sval_temp = -1;
+
+  if(fgets(line_temp, MAX_FAULTLINE_SIZE, ffault))
+  {
+    //Remove any white space from line
+    RemoveSpaces(line_temp);
+
+    //Break up line into stuck-at node and value
+    sscanf(line_temp,"%i/%i",&Snod_temp,&Sval_temp);
+    vector[a].Snod = Snod_temp;
+    vector[a].Sval = Sval_temp;
+
+    //Increment number of faults read
+    a++;
+  }
+}
+return a;
+}//end of readfaults
+
+//Helper function to remove spaces from a string of characters
+    //NOTE: I DO NOT CLAIM OWNERSHIP OF THIS FUNCTION WHICH WAS DEVELOPED
+    //BY SOMEONE ELSE AND MADE FREELY AVAILABLE ON THE INTERNET.
+void RemoveSpaces(char* source)
+{
+  char* i = source;
+  char* j = source;
+  while(*j != 0)
+  {
+    *i = *j++;
+    if(*i != ' ')
+      i++;
+  }
+  *i = 0;
+}
 /*************************************************************************************************/
