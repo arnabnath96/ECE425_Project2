@@ -1,4 +1,7 @@
 #include "graph.h"
+
+#define bzero(b,len) (memset((b), '\0', (len)), (void) 0)
+
 /*************************************************************************************************
 Insert an element "x" at end of LIST "l", if "x" is not already in "l".
 *************************************************************************************************/
@@ -6,14 +9,14 @@ void InsertList(LIST **l,int x)
 {
 LIST *p,*tl;
 
-if ((p=(LIST *) malloc(sizeof(LIST)))==NULL){ printf("LIST: Out of memory\n");  exit(1);  }   
+if ((p=(LIST *) malloc(sizeof(LIST)))==NULL){ printf("LIST: Out of memory\n");  exit(1);  }
 else{
   p->id=x;  p->next=NULL;
   if(*l==NULL){  *l=p; return;  }
-  tl=NULL; tl=*l; 
+  tl=NULL; tl=*l;
   while(tl!=NULL){
     if(tl->id==x){        break;   }
-    if(tl->next==NULL){  tl->next=p; } 
+    if(tl->next==NULL){  tl->next=p; }
     tl = tl->next; }  }
 return;
 }//end of InsertList
@@ -25,9 +28,9 @@ void PrintList(LIST *l)
 LIST *temp=NULL;
 
 temp=l;
-while(temp!=NULL){   
+while(temp!=NULL){
   printf("%d ", temp->id);
-  temp = temp->next; } 
+  temp = temp->next; }
 return;
 }//end of PrintList
 /*************************************************************************************************
@@ -41,10 +44,10 @@ if(*l==NULL){   return;  }
 temp=(*l);
 while((*l) != NULL){
   temp=temp->next;
-  free(*l); (*l)=temp; }   
+  free(*l); (*l)=temp; }
 (*l)=NULL;
 return;
-}//end of FreeList 
+}//end of FreeList
 /*************************************************************************************************
  Routine to read the Bench Markk(.isc files)
 *************************************************************************************************/
@@ -169,7 +172,7 @@ int ReadVec(FILE *fvec,PATTERN *vector)
 {
 //random variables
 int a,b,c,d;
-//char array    
+//char array
 char str[Mpi];
 
 //intializing the temporary variables

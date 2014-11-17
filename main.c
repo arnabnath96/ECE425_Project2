@@ -2,6 +2,9 @@
 #include "stack.h"
 #include "topological_sort.h"
 #include "simulation.h"
+
+#define bzero(b,len) (memset((b), '\0', (len)), (void) 0)
+
 /*************************************************************************************************
  Main Function(Serial and Parallel Fault Simulation)
 *************************************************************************************************/
@@ -48,8 +51,8 @@ fvec=fopen(argv[2],"r");
 //read .vec file and store in vector structure and return Total number of patterns
 Total=0; Total=ReadVec(fvec,vector);
 
-//close file pointer for .vec file     
-fclose(fvec);                                      
+//close file pointer for .vec file
+fclose(fvec);
 
 //print total number of patterns in .vec file
 printf("\nTotal No. of Pattern: %d",Total);
@@ -57,7 +60,7 @@ printf("\nTotal No. of Pattern: %d",Total);
 //print all members of vector structure
 printf("\n\nInput Vectors without Xval Replacement");
 printf("\nIndex\tInputVector\n");
-for(a=0;a<Total;a++){  printf("%d\t%s",a,vector[a].piv); } 
+for(a=0;a<Total;a++){  printf("%d\t%s",a,vector[a].piv); }
 
 /*************************************************************************************************
  Set XVal in vector structure
@@ -136,7 +139,7 @@ for(i = 0; i < Total; i++) //Iterate over each input vector
     //Print seperator
     fprintf(fres,"\t");
     printf("\t");
-    
+
     //Print output vector
     for(j = 0; j < output_vector_length; j++)
     {
@@ -159,7 +162,7 @@ fclose(fres);
  Clean up
 *************************************************************************************************/
 
-//clear memory for all members of graph                                      
+//clear memory for all members of graph
 ClearCircuit(graph,Mnod);
 //clear memory for all members of vector
 for(a=0;a<Total;a++){ bzero(vector[a].piv,Mpi); }
