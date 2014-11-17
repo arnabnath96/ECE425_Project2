@@ -31,9 +31,35 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="gates.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="gates.h" />
+		<Unit filename="gates_func.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="gates_table.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="graph.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="graph.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="simulation.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="simulation.h" />
+		<Unit filename="stack.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="stack.h" />
+		<Unit filename="topological_sort.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="topological_sort.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />
