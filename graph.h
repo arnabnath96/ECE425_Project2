@@ -62,10 +62,10 @@ typedef struct PATTERN_type
  char piv[Mpi];    //primary input vector(size is not declared)
 } PATTERN;
 //4.Stucture declaration for FAULT
-/*typedef struct FAULT_type
+typedef struct FAULT_type
 {
  int Snod,Sval;      //stuck_at_node,stuck_at_value
-} FAULT;*/
+} FAULT;
 /***************************************************************************************************************************
 Functions in given.c
 ****************************************************************************************************************************/
