@@ -13,6 +13,8 @@ void get_node_inputs(NODE* graph, int id, char* input_vector, int* input_vector_
 void apply_node_inputs(NODE* graph, int id, int* node_input, int Snod, int Sval);
 int read_circuit_outputs(NODE* graph, int max, char* output_vector, int Snod, int Sval);
 
+int compare_faulty_circuit_outputs(NODE* graph, int max, int Snod, int Sval);
+
 int assign_bitvalue_ctoi(char);
 char assign_bitvalue_itoc(int);
 

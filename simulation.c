@@ -37,6 +37,15 @@ int apply_vector_wfault(NODE* graph, int max, Stack* sorted, char* input_vector,
 		exit(1);
 	}
 
+	if(Snod >= -1)
+    {
+        int a = 0;
+        for(a=0; a <= max; a++)
+        {
+            graph[a].Fval = 3;
+        }
+    }
+
     apply_circuit_inputs(graph,sorted,input_vector, Snod, Sval);
 	return read_circuit_outputs(graph,max,output_vector, Snod, Sval);
 }
@@ -184,7 +193,7 @@ void apply_node_inputs(NODE* graph, int id, int* node_input, int Snod, int Sval)
 int read_circuit_outputs(NODE* graph, int max, char* output_vector, int Snod, int Sval)
 {
 	//Set output vector to a known string
-	memset(output_vector, 'z', Mpo);
+	memset(output_vector, 0, Mpo);
 
 	//Keeps track of bits in output vector that are already assigned
 	int output_vector_iter = 0;
@@ -210,6 +219,17 @@ int read_circuit_outputs(NODE* graph, int max, char* output_vector, int Snod, in
         }
 	}
 	return output_vector_iter;
+}
+
+int compare_faulty_circuit_outputs(NODE* graph, int max, int Snod, int Sval)
+{
+    char output_vector_faultfree[Mpo];
+    char output_vector_faulty[Mpo];
+    memset(output_vector_faultfree, 0, sizeof(output_vector_faultfree));
+    memset(output_vector_faulty, 0, sizeof(output_vector_faulty));
+    read_circuit_outputs(graph, max, output_vector_faultfree, -1, -1);
+    read_circuit_outputs(graph, max, output_vector_faulty, Snod, Sval);
+    return !!strcmp(output_vector_faultfree, output_vector_faulty);
 }
 
 //Helper function: Convert from character to integer representation of bit
