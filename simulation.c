@@ -277,7 +277,11 @@ int compare_faulty_circuit_outputs_wmark(NODE* graph, int max, int Snod, int Sva
     {
         if(graph[id].Po == 1 && graph[id].Mark == 1)
         {
-            detected = detected || (graph[id].Cval != graph[id].Fval);
+            if(graph[id].Cval != graph[id].Fval)
+            {
+                detected = 1;
+                break;
+            }
         }
     }
     return detected;
