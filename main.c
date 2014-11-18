@@ -153,7 +153,7 @@ for(i = 0; i < Total; i++) //Iterate over each input vector
         {
             sprintf(fault_string[m],"%i/%i",fault[m-1].Snod,fault[m-1].Sval);
             apply_vector_wfault(graph, Max, temp, input_vector, output_vector_string[m], fault[m-1].Snod, fault[m-1].Sval);
-            detected_int[m] = compare_faulty_circuit_outputs(graph, Max, fault[m-1].Snod, fault[m-1].Sval);
+            detected_int[m] = compare_faulty_circuit_outputs_wmark(graph, Max, fault[m-1].Snod, fault[m-1].Sval);
         }
 
         delete_stack(temp);

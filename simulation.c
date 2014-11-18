@@ -257,7 +257,7 @@ int read_circuit_outputs(NODE* graph, int max, char* output_vector, int Snod, in
 	return output_vector_iter;
 }
 
-int compare_faulty_circuit_outputs(NODE* graph, int max, int Snod, int Sval)
+int compare_faulty_circuit_outputs_womark(NODE* graph, int max, int Snod, int Sval)
 {
     char output_vector_faultfree[Mpo];
     char output_vector_faulty[Mpo];
@@ -266,6 +266,21 @@ int compare_faulty_circuit_outputs(NODE* graph, int max, int Snod, int Sval)
     read_circuit_outputs(graph, max, output_vector_faultfree, -1, -1);
     read_circuit_outputs(graph, max, output_vector_faulty, Snod, Sval);
     return !!strcmp(output_vector_faultfree, output_vector_faulty);
+}
+
+int compare_faulty_circuit_outputs_wmark(NODE* graph, int max, int Snod, int Sval)
+{
+    int detected = 0;
+
+    int id = 0;
+    for(id=0; id <= max; id++)
+    {
+        if(graph[id].Po == 1 && graph[id].Mark == 1)
+        {
+            detected = detected || (graph[id].Cval != graph[id].Fval);
+        }
+    }
+    return detected;
 }
 
 //Helper function: Convert from character to integer representation of bit
