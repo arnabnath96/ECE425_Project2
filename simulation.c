@@ -4,6 +4,8 @@
 #include "stack.h"
 #include "gates.h"
 
+#define NO_DEBUG
+
 //Destructively changes all of the unknown values ('x') in a set of input vectors to a given xval.
 void set_vector(PATTERN* input_vector, int length, int xval)
 {
@@ -27,7 +29,7 @@ void set_vector(PATTERN* input_vector, int length, int xval)
 }
 
 //Computes the output vector for a given input vector applied to a graph representing a
-//combinational netlist with a faults; returns the length of the output vector. Note that the 
+//combinational netlist with a faults; returns the length of the output vector. Note that the
 //user must provide a topological sort of the nodes in the graph.
 int apply_vector_wfault(NODE* graph, int max, Stack* sorted, char* input_vector, char* output_vector, int Snod, int Sval)
 {
@@ -43,6 +45,7 @@ int apply_vector_wfault(NODE* graph, int max, Stack* sorted, char* input_vector,
         for(a=0; a <= max; a++)
         {
             graph[a].Fval = 3;
+            graph[a].Mark = 0;
         }
     }
 
@@ -51,7 +54,7 @@ int apply_vector_wfault(NODE* graph, int max, Stack* sorted, char* input_vector,
 }
 
 //Computes the output vector for a given input vector applied to a graph representing a
-//combinational netlist with no faults; returns the length of the output vector. Note that the 
+//combinational netlist with no faults; returns the length of the output vector. Note that the
 //user must provide a topological sort of the nodes in the graph.
 int apply_vector_wofault(NODE* graph, int max, Stack* sorted, char* input_vector, char* output_vector)
 {
@@ -118,6 +121,18 @@ void get_node_inputs(NODE* graph, int id, char* input_vector, int* input_vector_
 					else
                     {
                          node_input[i] = graph[current_fanin->id].Fval;
+                         if(graph[current_fanin->id].Mark == 1)
+                         {
+                             #ifdef DEBUG
+                                if(graph[id].Mark == 1)
+                                {
+                                    printf("REDUNDANT ");
+                                }
+                                printf("FAULT PROPAGATED AND MARKED!\n");
+                            #endif // DEBUG
+
+                            graph[id].Mark = 1;
+                         }
                     }
 					current_fanin = current_fanin->next;
 				}
@@ -133,6 +148,18 @@ void get_node_inputs(NODE* graph, int id, char* input_vector, int* input_vector_
                 else
                 {
                     node_input[0] = graph[graph[id].Fin->id].Fval;
+                    if(graph[graph[id].Fin->id].Mark == 1)
+                    {
+                        #ifdef DEBUG
+                            if(graph[id].Mark == 1)
+                            {
+                                printf("REDUNDANT ");
+                            }
+                            printf("FAULT PROPAGATED AND MARKED!\n");
+                        #endif // DEBUG
+
+                        graph[id].Mark = 1;
+                    }
                 }
 				break;
 			}
@@ -144,6 +171,8 @@ void get_node_inputs(NODE* graph, int id, char* input_vector, int* input_vector_
 //node, determines the proper output and assigns that value to the node.
 void apply_node_inputs(NODE* graph, int id, int* node_input, int Snod, int Sval)
 {
+    int* Mark = &(graph[id].Mark);
+
     int* Xval = 0;
     if(Snod <= -1)  {Xval = &graph[id].Cval;}
     else            {Xval = &graph[id].Fval;}
@@ -151,6 +180,10 @@ void apply_node_inputs(NODE* graph, int id, int* node_input, int Snod, int Sval)
     if(Snod > -1 && Snod == id)
     {
         *Xval = Sval;
+        *Mark = 1;
+        #ifdef DEBUG
+            printf("\nFAULT INJECTED AND MARKED!\n");
+        #endif // DEBUG
     }
     else
     {
