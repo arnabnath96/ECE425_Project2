@@ -27,8 +27,8 @@ void set_vector(PATTERN* input_vector, int length, int xval)
 }
 
 //Computes the output vector for a given input vector applied to a graph representing a
-//combinational netlist; returns the length of the output vector. Note that the user must provide
-//a topological sort of the nodes in the graph.
+//combinational netlist with a faults; returns the length of the output vector. Note that the 
+//user must provide a topological sort of the nodes in the graph.
 int apply_vector_wfault(NODE* graph, int max, Stack* sorted, char* input_vector, char* output_vector, int Snod, int Sval)
 {
 	if(isempty_stack(sorted))
@@ -50,6 +50,9 @@ int apply_vector_wfault(NODE* graph, int max, Stack* sorted, char* input_vector,
 	return read_circuit_outputs(graph,max,output_vector, Snod, Sval);
 }
 
+//Computes the output vector for a given input vector applied to a graph representing a
+//combinational netlist with no faults; returns the length of the output vector. Note that the 
+//user must provide a topological sort of the nodes in the graph.
 int apply_vector_wofault(NODE* graph, int max, Stack* sorted, char* input_vector, char* output_vector)
 {
     return apply_vector_wfault(graph, max, sorted, input_vector, output_vector, -1, -1);
