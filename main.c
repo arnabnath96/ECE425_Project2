@@ -209,7 +209,7 @@ for(i = 0; i < Total; i++) //Iterate over each input vector
     //Print detection status
     if(!detected_flag)
     {
-        printf("STATUS: FAULT NOT DETECED\n");
+        printf("STATUS: FAULT NOT DETECTED\n");
         fprintf(fres, "STATUS: FAULT NOT DETECED\n");
     }
     else
