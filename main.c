@@ -79,7 +79,7 @@ Tfs=0; Tfs=ReadFaults(ffau,fault);
 fclose(ffau);
 
 //print total number of patterns in .vec file
-printf("\nTotal No. of Faults: %d",Tfs);
+printf("\n\nTotal No. of Faults: %d",Tfs);
 
 //print all members of vector structure
 printf("\n\nStuck-At Faults");
@@ -115,7 +115,6 @@ Stack* topo_sorted = topological_sort(graph,Max);
 //Create structures to hold input and output vectors
 char input_vector[Mpi];
 char output_vector[Mpo];
-int output_vector_length = 0;
 
 //Create structures to hold data to be printed to screen/file
 char fault_string[Mft+1][Mlin];
@@ -123,7 +122,14 @@ char output_vector_string[Mft+1][Mpo];
 int detected_int[Mft+1];
 
 //Flag to store whether a fault can be sensed or not
-int detected_flag;
+int detected_flag = 0;
+
+//Store which patterns detect which faults
+int DetectionTable[Mft][Mpt+1];
+memset(DetectionTable, 0, Mft*(Mpt+1));
+
+char FaultTable[Mft][Mlin];
+memset(FaultTable, 0, Mft*Mlin);
 
 int i = 0; int j = 0; int m = 0; Stack* temp;
 for(i = 0; i < Total; i++) //Iterate over each input vector
@@ -138,7 +144,7 @@ for(i = 0; i < Total; i++) //Iterate over each input vector
      Simulation
     **************************************************************************/
 
-    for(m = 0; m < Tfs; m++) // Iterate over each fault
+    for(m = 0; m < Tfs+1; m++) // Iterate over each fault plus no fault
     {
         temp = copy_stack(topo_sorted);
         memcpy(input_vector, vector[i].piv, Mpi);
@@ -146,7 +152,7 @@ for(i = 0; i < Total; i++) //Iterate over each input vector
         if(m==0)
         {
             sprintf(fault_string[m], "None");
-            output_vector_length = apply_vector_wofault(graph, Max, temp, input_vector, output_vector_string[m]);
+            apply_vector_wofault(graph, Max, temp, input_vector, output_vector_string[m]);
             detected_int[m] = 2;
         }
         else
@@ -154,6 +160,9 @@ for(i = 0; i < Total; i++) //Iterate over each input vector
             sprintf(fault_string[m],"%i/%i",fault[m-1].Snod,fault[m-1].Sval);
             apply_vector_wfault(graph, Max, temp, input_vector, output_vector_string[m], fault[m-1].Snod, fault[m-1].Sval);
             detected_int[m] = compare_faulty_circuit_outputs_wmark(graph, Max, fault[m-1].Snod, fault[m-1].Sval);
+
+            DetectionTable[m-1][i+1] = detected_int[m];
+            memcpy(FaultTable[m-1], fault_string[m], Mlin);
         }
 
         delete_stack(temp);
@@ -184,7 +193,7 @@ for(i = 0; i < Total; i++) //Iterate over each input vector
     fprintf(fres, "\nFault\tOutput\tDetected\n");
 
     //Print table rows
-    for(m = 0; m < Tfs; m++)
+    for(m = 0; m < Tfs+1; m++)
     {
         if(detected_int[m] == 2)
         {
@@ -209,14 +218,31 @@ for(i = 0; i < Total; i++) //Iterate over each input vector
     //Print detection status
     if(!detected_flag)
     {
-        printf("STATUS: FAULT NOT DETECTED\n");
-        fprintf(fres, "STATUS: FAULT NOT DETECED\n");
+        printf("STATUS: PATTERN DOES NOT DETECT ANY FAULT\n");
+        fprintf(fres, "STATUS: PATTERN DOES NOT DETECT ANY FAULT\n");
     }
     else
     {
-        printf("STATUS: FAULT DETECTED\n");
-        fprintf(fres, "STATUS: FAULT DETECTED\n");
+        printf("STATUS: PATTERN DETECTS A FAULT\n");
+        fprintf(fres, "STATUS: PATTERN DETECTS A FAULT\n");
     }
+}
+
+printf("\n\nNumber of Input Patterns That Detect Each Fault\n");
+fprintf(fres,"\n\nNumber of Input Patterns That Detect Each Fault\n");
+
+printf("Fault\tPatterns\tDetected?\n");
+fprintf(fres,"Fault\tPatterns\tDetected?\n");
+
+for(i = 0; i < Tfs; i++)
+{
+    for(m = 1; m < Total+1; m++)
+    {
+        DetectionTable[i][0] += DetectionTable[i][m];
+    }
+
+    printf("%s\t%i\t%s\n", FaultTable[i], DetectionTable[i][0], DetectionTable[i][0]>0?"Yes":"No");
+    fprintf(fres,"%s\t%i\t%s\n", FaultTable[i], DetectionTable[i][0], DetectionTable[i][0]>0?"Yes":"No");
 }
 
 //Free stack used to hold topological sort
