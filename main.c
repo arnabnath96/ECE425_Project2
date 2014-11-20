@@ -122,12 +122,13 @@ char output_vector_string[Mft+1][Mpo];
 int detected_int[Mft+1];
 
 //Flag to store whether a fault can be sensed or not
-int detected_flag = 0;
+int detected_flag;
 
 //Store which patterns detect which faults
 int DetectionTable[Mft][Mpt+1];
 memset(DetectionTable, 0, Mft*(Mpt+1));
 
+//Store a string representation of each fault
 char FaultTable[Mft][Mlin];
 memset(FaultTable, 0, Mft*Mlin);
 
