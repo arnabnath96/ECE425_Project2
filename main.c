@@ -5,6 +5,8 @@
 
 #define bzero(b,len) (memset((b), '\0', (len)), (void) 0)
 
+#define NODEBUG
+
 /*************************************************************************************************
  Main Function(Serial and Parallel Fault Simulation)
 *************************************************************************************************/
@@ -117,9 +119,9 @@ char input_vector[Mpi];
 char output_vector[Mpo];
 
 //Create structures to hold data to be printed to screen/file
-char fault_string[Mft+1][Mlin];
-char output_vector_string[Mft+1][Mpo];
-int detected_int[Mft+1];
+char fault_string[Mft][Mlin];
+char output_vector_string[Mft][Mpo];
+int detected_int[Mft];
 
 //Flag to store whether a fault can be sensed or not
 int detected_flag;
@@ -145,26 +147,23 @@ for(i = 0; i < Total; i++) //Iterate over each input vector
      Simulation
     **************************************************************************/
 
-    for(m = 0; m < Tfs+1; m++) // Iterate over each fault plus no fault
+    for(m = 0; m < Tfs; m++) // Iterate over each fault
     {
         temp = copy_stack(topo_sorted);
         memcpy(input_vector, vector[i].piv, Mpi);
 
         if(m==0)
         {
-            sprintf(fault_string[m], "None");
-            apply_vector_wofault(graph, Max, temp, input_vector, output_vector_string[m]);
-            detected_int[m] = 2;
+            apply_vector_wofault(graph, Max, temp, input_vector, output_vector);
+            delete_stack(temp); temp = copy_stack(topo_sorted);
         }
-        else
-        {
-            sprintf(fault_string[m],"%i/%i",fault[m-1].Snod,fault[m-1].Sval);
-            apply_vector_wfault(graph, Max, temp, input_vector, output_vector_string[m], fault[m-1].Snod, fault[m-1].Sval);
-            detected_int[m] = compare_faulty_circuit_outputs_wmark(graph, Max, fault[m-1].Snod, fault[m-1].Sval);
 
-            DetectionTable[m-1][i+1] = detected_int[m];
-            memcpy(FaultTable[m-1], fault_string[m], Mlin);
-        }
+        sprintf(fault_string[m], "%i/%i", fault[m].Snod, fault[m].Sval);
+        apply_vector_wfault(graph, Max, temp, input_vector, output_vector_string[m], fault[m].Snod, fault[m].Sval);
+        detected_int[m] = compare_faulty_circuit_outputs_wmark(graph, Max, fault[m].Snod, fault[m].Sval);
+
+        DetectionTable[m][i+1] = detected_int[m];
+        memcpy(FaultTable[m], fault_string[m], Mlin);
 
         delete_stack(temp);
     }
@@ -193,21 +192,18 @@ for(i = 0; i < Total; i++) //Iterate over each input vector
     printf("\nFault\tOutput\tDetected\n");
     fprintf(fres, "\nFault\tOutput\tDetected\n");
 
-    //Print table rows
-    for(m = 0; m < Tfs+1; m++)
-    {
-        if(detected_int[m] == 2)
-        {
-            printf("%s\t%s\tNA\n", fault_string[m], output_vector_string[m]);
-            fprintf(fres, "%s\t%s\tNA\n", fault_string[m], output_vector_string[m]);
-        }
-        else if(detected_int[m] == 0 || detected_int[m] == 1)
-        {
-            printf("%s\t%s\t%i\n", fault_string[m], output_vector_string[m], detected_int[m]);
-            fprintf(fres, "%s\t%s\t%i\n", fault_string[m], output_vector_string[m], detected_int[m]);
+    printf("None\t%s\tNA\n",output_vector);
+    fprintf(fres,"None\t%s\tNA\n",output_vector);
 
-            if(detected_int[m] == 1)
-                detected_flag = 1;
+    //Print table rows
+    for(m = 0; m < Tfs; m++)
+    {
+        if(detected_int[m] == 0 || detected_int[m] == 1)
+        {
+            printf("%s\t%s\t%s\n", fault_string[m], output_vector_string[m], detected_int[m]>0?"Yes":"No");
+            fprintf(fres, "%s\t%s\t%s\n", fault_string[m], output_vector_string[m], detected_int[m]>0?"Yes":"No");
+
+            detected_flag = detected_flag || detected_int[m];
         }
         else
         {
@@ -216,17 +212,19 @@ for(i = 0; i < Total; i++) //Iterate over each input vector
         }
     }
 
-    //Print detection status
-    if(!detected_flag)
-    {
-        printf("STATUS: PATTERN DOES NOT DETECT ANY FAULT\n");
-        fprintf(fres, "STATUS: PATTERN DOES NOT DETECT ANY FAULT\n");
-    }
-    else
-    {
-        printf("STATUS: PATTERN DETECTS A FAULT\n");
-        fprintf(fres, "STATUS: PATTERN DETECTS A FAULT\n");
-    }
+    #ifdef DEBUG
+        //Print detection status
+        if(!detected_flag)
+        {
+            printf("STATUS: PATTERN DOES NOT DETECT ANY FAULT\n");
+            fprintf(fres, "STATUS: PATTERN DOES NOT DETECT ANY FAULT\n");
+        }
+        else
+        {
+            printf("STATUS: PATTERN DETECTS A FAULT\n");
+            fprintf(fres, "STATUS: PATTERN DETECTS A FAULT\n");
+        }
+    #endif // DEBUG
 }
 
 printf("\n\nNumber of Input Patterns That Detect Each Fault\n");
