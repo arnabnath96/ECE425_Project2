@@ -183,6 +183,8 @@ while(!feof(fvec)){
   //reading a single line
   fgets(str,Mpi,fvec);
   if(*str!='\0'){
+    //remove newlines
+    RemoveNewlines(str);
     //initialing the string
     bzero(vector[a].piv,Mpi);
 	//copy the string into a piv in vector structure
@@ -190,6 +192,23 @@ while(!feof(fvec)){
     a++; } }
 return a;
 }//end of readvec
+
+//Helper function to remove newlines from a string of characters
+    //NOTE: I DO NOT CLAIM OWNERSHIP OF THIS FUNCTION WHICH WAS DEVELOPED
+    //BY SOMEONE ELSE AND MADE FREELY AVAILABLE ON THE INTERNET.
+void RemoveNewlines(char* source)
+{
+  char* i = source;
+  char* j = source;
+  while(*j != 0)
+  {
+    *i = *j++;
+    if(*i != '\n')
+      i++;
+  }
+  *i = 0;
+}
+
 /*************************************************************************************************
  Routine to read the .faults files
 *************************************************************************************************/

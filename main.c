@@ -172,21 +172,9 @@ for(i = 0; i < Total; i++) //Iterate over each input vector
      Log
     **************************************************************************/
 
-    printf("\nTest Pattern: ");
-    fprintf(fres, "\nTest Pattern: ");
-    //Print input vector
-    for(j = 0; j < Mpi; j++)
-    {
-	if(input_vector[j] == '\n' || input_vector[j] == '\0')
-        {
-            break;
-        }
-        else
-        {
-            printf("%c", input_vector[j]);
-            fprintf(fres, "%c", input_vector[j]);
-        }
-    }
+    //Print test pattern
+    printf("\nTest Pattern: %s",input_vector);
+    fprintf(fres, "\nTest Pattern: %s",input_vector);
 
     //Print table header
     printf("\nFault\tOutput\tDetected\n");
