@@ -2,6 +2,7 @@
 #include "stack.h"
 #include "topological_sort.h"
 #include "simulation.h"
+#include "display.h"
 
 #define bzero(b,len) (memset((b), '\0', (len)), (void) 0)
 
@@ -65,7 +66,7 @@ printf("\nTotal No. of Pattern: %d",Total);
 //print all members of vector structure
 printf("\n\nInput Vectors without Xval Replacement");
 printf("\nIndex\tInputVector\n");
-for(a=0;a<Total;a++){  printf("%d\t%s",a,vector[a].piv); }
+for(a=0;a<Total;a++){  printf("%d\t%s\n",a,vector[a].piv); }
 
 /*************************************************************************************************
  Read the .faults file and store the information in faults structure
@@ -102,7 +103,7 @@ printf("\nReplacing 'x' with %d...\n", Opt);
 //print all members of vector structure
 printf("\nInput Vectors with Xval Replacement");
 printf("\nIndex\tInputVector\n");
-for(a=0;a<Total;a++){  printf("%d\t%s",a,vector[a].piv); }
+for(a=0;a<Total;a++){  printf("%d\t%s\n",a,vector[a].piv); }
 
 /*************************************************************************************************
  Begin logic simulation and logging
@@ -163,6 +164,8 @@ for(i = 0; i < Total; i++) //Iterate over each input vector
         faulty_detected[m] = compare_faulty_circuit_outputs_wmark(graph, Max, fault[m].Snod, fault[m].Sval);
 
         DetectionTable[m][i+1] = faulty_detected[m];
+        DetectionTable[m][0] += DetectionTable[m][i+1];
+
         memcpy(FaultTable[m], faulty_type[m], Mlin);
 
         delete_stack(temp);
@@ -172,65 +175,10 @@ for(i = 0; i < Total; i++) //Iterate over each input vector
      Log
     **************************************************************************/
 
-    //Print test pattern
-    printf("\nTest Pattern: %s",input_vector);
-    fprintf(fres, "\nTest Pattern: %s",input_vector);
-
-    //Print table header
-    printf("\nFault\tOutput\tDetected\n");
-    fprintf(fres, "\nFault\tOutput\tDetected\n");
-
-    printf("None\t%s\tNA\n",output_vector);
-    fprintf(fres,"None\t%s\tNA\n",output_vector);
-
-    //Print table rows
-    for(m = 0; m < Tfs; m++)
-    {
-        if(faulty_detected[m] == 0 || faulty_detected[m] == 1)
-        {
-            printf("%s\t%s\t%s\n", faulty_type[m], faulty_output_vector[m], faulty_detected[m]>0?"Yes":"No");
-            fprintf(fres, "%s\t%s\t%s\n", faulty_type[m], faulty_output_vector[m], faulty_detected[m]>0?"Yes":"No");
-
-            detected_flag = detected_flag || faulty_detected[m];
-        }
-        else
-        {
-            printf("%s\t%s\tER\n", faulty_type[m], faulty_output_vector[m]);
-            fprintf(fres, "%s\t%s\tER\n", faulty_type[m], faulty_output_vector[m]);
-        }
-    }
-
-    #ifdef DEBUG
-        //Print detection status
-        if(!detected_flag)
-        {
-            printf("STATUS: PATTERN DOES NOT DETECT ANY FAULT\n");
-            fprintf(fres, "STATUS: PATTERN DOES NOT DETECT ANY FAULT\n");
-        }
-        else
-        {
-            printf("STATUS: PATTERN DETECTS A FAULT\n");
-            fprintf(fres, "STATUS: PATTERN DETECTS A FAULT\n");
-        }
-    #endif // DEBUG
+    print_pattern_table(fres, Tfs, input_vector, output_vector, faulty_type, faulty_output_vector, faulty_detected);
 }
 
-printf("\n\nNumber of Input Patterns That Detect Each Fault\n");
-fprintf(fres,"\n\nNumber of Input Patterns That Detect Each Fault\n");
-
-printf("Fault\tPatterns\tDetected?\n");
-fprintf(fres,"Fault\tPatterns\tDetected?\n");
-
-for(i = 0; i < Tfs; i++)
-{
-    for(m = 1; m < Total+1; m++)
-    {
-        DetectionTable[i][0] += DetectionTable[i][m];
-    }
-
-    printf("%s\t%i\t%s\n", FaultTable[i], DetectionTable[i][0], DetectionTable[i][0]>0?"Yes":"No");
-    fprintf(fres,"%s\t%i\t%s\n", FaultTable[i], DetectionTable[i][0], DetectionTable[i][0]>0?"Yes":"No");
-}
+print_detection_table(fres, Total, Tfs, FaultTable, DetectionTable);
 
 //Free stack used to hold topological sort
 delete_stack(topo_sorted);
