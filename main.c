@@ -119,9 +119,9 @@ char input_vector[Mpi];
 char output_vector[Mpo];
 
 //Create structures to hold data to be printed to screen/file
-char fault_string[Mft][Mlin];
-char output_vector_string[Mft][Mpo];
-int detected_int[Mft];
+char faulty_type[Mft][Mlin];
+char faulty_output_vector[Mft][Mpo];
+int faulty_detected[Mft];
 
 //Flag to store whether a fault can be sensed or not
 int detected_flag;
@@ -138,9 +138,9 @@ int i = 0; int j = 0; int m = 0; Stack* temp;
 for(i = 0; i < Total; i++) //Iterate over each input vector
 {
     //Reset values
-    memset(fault_string, 0, (Mft+1)*Mlin);
-    memset(output_vector_string, 0, (Mft+1)*Mpo);
-    memset(detected_int, -1, sizeof(detected_int[0])*(Mft+1));
+    memset(faulty_type, 0, (Mft+1)*Mlin);
+    memset(faulty_output_vector, 0, (Mft+1)*Mpo);
+    memset(faulty_detected, -1, sizeof(faulty_detected[0])*(Mft+1));
     detected_flag = 0;
 
     /**************************************************************************
@@ -158,12 +158,12 @@ for(i = 0; i < Total; i++) //Iterate over each input vector
             delete_stack(temp); temp = copy_stack(topo_sorted);
         }
 
-        sprintf(fault_string[m], "%i/%i", fault[m].Snod, fault[m].Sval);
-        apply_vector_wfault(graph, Max, temp, input_vector, output_vector_string[m], fault[m].Snod, fault[m].Sval);
-        detected_int[m] = compare_faulty_circuit_outputs_wmark(graph, Max, fault[m].Snod, fault[m].Sval);
+        sprintf(faulty_type[m], "%i/%i", fault[m].Snod, fault[m].Sval);
+        apply_vector_wfault(graph, Max, temp, input_vector, faulty_output_vector[m], fault[m].Snod, fault[m].Sval);
+        faulty_detected[m] = compare_faulty_circuit_outputs_wmark(graph, Max, fault[m].Snod, fault[m].Sval);
 
-        DetectionTable[m][i+1] = detected_int[m];
-        memcpy(FaultTable[m], fault_string[m], Mlin);
+        DetectionTable[m][i+1] = faulty_detected[m];
+        memcpy(FaultTable[m], faulty_type[m], Mlin);
 
         delete_stack(temp);
     }
@@ -186,17 +186,17 @@ for(i = 0; i < Total; i++) //Iterate over each input vector
     //Print table rows
     for(m = 0; m < Tfs; m++)
     {
-        if(detected_int[m] == 0 || detected_int[m] == 1)
+        if(faulty_detected[m] == 0 || faulty_detected[m] == 1)
         {
-            printf("%s\t%s\t%s\n", fault_string[m], output_vector_string[m], detected_int[m]>0?"Yes":"No");
-            fprintf(fres, "%s\t%s\t%s\n", fault_string[m], output_vector_string[m], detected_int[m]>0?"Yes":"No");
+            printf("%s\t%s\t%s\n", faulty_type[m], faulty_output_vector[m], faulty_detected[m]>0?"Yes":"No");
+            fprintf(fres, "%s\t%s\t%s\n", faulty_type[m], faulty_output_vector[m], faulty_detected[m]>0?"Yes":"No");
 
-            detected_flag = detected_flag || detected_int[m];
+            detected_flag = detected_flag || faulty_detected[m];
         }
         else
         {
-            printf("%s\t%s\tER\n", fault_string[m], output_vector_string[m]);
-            fprintf(fres, "%s\t%s\tER\n", fault_string[m], output_vector_string[m]);
+            printf("%s\t%s\tER\n", faulty_type[m], faulty_output_vector[m]);
+            fprintf(fres, "%s\t%s\tER\n", faulty_type[m], faulty_output_vector[m]);
         }
     }
 
