@@ -28,10 +28,7 @@ void set_vector(PATTERN* input_vector, int length, int xval)
 	return;
 }
 
-//Computes the output vector for a given input vector applied to a graph representing a
-//combinational netlist with a faults; returns the length of the output vector. Note that the
-//user must provide a topological sort of the nodes in the graph.
-int apply_vector_wfault(NODE* graph, int max, Stack* sorted, char* input_vector, char* output_vector, int Snod, int Sval)
+int apply_vector_wfault(NODE* graph, int max, Stack* sorted, char* input_vector, char* output_vector, FAULT fault)
 {
 	if(isempty_stack(sorted))
 	{
@@ -39,7 +36,7 @@ int apply_vector_wfault(NODE* graph, int max, Stack* sorted, char* input_vector,
 		exit(1);
 	}
 
-	if(Snod >= -1)
+	if(fault.Snod >= -1)
     {
         int a = 0;
         for(a=0; a <= max; a++)
@@ -49,21 +46,17 @@ int apply_vector_wfault(NODE* graph, int max, Stack* sorted, char* input_vector,
         }
     }
 
-    apply_circuit_inputs(graph,sorted,input_vector, Snod, Sval);
-	return read_circuit_outputs(graph,max,output_vector, Snod, Sval);
+    apply_circuit_inputs(graph,sorted,input_vector, fault);
+	return read_circuit_outputs(graph,max,output_vector, fault);
 }
 
-//Computes the output vector for a given input vector applied to a graph representing a
-//combinational netlist with no faults; returns the length of the output vector. Note that the
-//user must provide a topological sort of the nodes in the graph.
 int apply_vector_wofault(NODE* graph, int max, Stack* sorted, char* input_vector, char* output_vector)
 {
-    return apply_vector_wfault(graph, max, sorted, input_vector, output_vector, -1, -1);
+    FAULT nofault = CreateNoFault();
+    return apply_vector_wfault(graph, max, sorted, input_vector, output_vector, nofault);
 }
 
-//Applies the input vector to the primary inputs of a graph representing a combinational netlist
-//and propagates those inputs through the circuit.
-void apply_circuit_inputs(NODE* graph, Stack* sorted, char* input_vector, int Snod, int Sval)
+void apply_circuit_inputs(NODE* graph, Stack* sorted, char* input_vector, FAULT fault)
 {
 	//Keeps track of bits in input vector that are already applied
     int input_vector_iter = 0;
@@ -77,8 +70,8 @@ void apply_circuit_inputs(NODE* graph, Stack* sorted, char* input_vector, int Sn
     do //Do while there are unprocessed nodes in the graph
 	{
 		id = pop_stack(sorted);
-		get_node_inputs(graph,id,input_vector,&input_vector_iter,node_input, Snod, Sval);
-        apply_node_inputs(graph,id,node_input, Snod, Sval);
+		get_node_inputs(graph,id,input_vector,&input_vector_iter,node_input, fault);
+        apply_node_inputs(graph,id,node_input, fault);
 
         // Reset variables
         memset(node_input, -1, sizeof(node_input));
@@ -87,9 +80,7 @@ void apply_circuit_inputs(NODE* graph, Stack* sorted, char* input_vector, int Sn
 	return;
 }
 
-//Given a graph representing a combinational circuit and a node in that graph, determines the inputs
-//to that node -- whether those inputs are from a previous node or from an input vector.
-void get_node_inputs(NODE* graph, int id, char* input_vector, int* input_vector_iter, int* node_input, int Snod, int Sval)
+void get_node_inputs(NODE* graph, int id, char* input_vector, int* input_vector_iter, int* node_input, FAULT fault)
 {
 	switch (graph[id].Type)
 	{
@@ -114,7 +105,7 @@ void get_node_inputs(NODE* graph, int id, char* input_vector, int* input_vector_
 				int i = 0;
 				for(i = 0; i <= (number_of_fanin-1); i++) //Iterate over fanin nodes
 				{
-				    if(Snod <= -1)
+				    if(fault.Snod <= -1)
                     {
                         node_input[i] = graph[current_fanin->id].Cval;
                     }
@@ -141,7 +132,7 @@ void get_node_inputs(NODE* graph, int id, char* input_vector, int* input_vector_
 			}
 		case FROM  :
 			{
-			    if(Snod <= -1)
+			    if(fault.Snod <= -1)
                 {
                     node_input[0] = graph[graph[id].Fin->id].Cval;
                 }
@@ -167,19 +158,17 @@ void get_node_inputs(NODE* graph, int id, char* input_vector, int* input_vector_
 	return;
 }
 
-//Given a graph representing a combinational circuit, a node in that graph, and the inputs to that
-//node, determines the proper output and assigns that value to the node.
-void apply_node_inputs(NODE* graph, int id, int* node_input, int Snod, int Sval)
+void apply_node_inputs(NODE* graph, int id, int* node_input, FAULT fault)
 {
     int* Mark = &(graph[id].Mark);
 
     int* Xval = 0;
-    if(Snod <= -1)  {Xval = &graph[id].Cval;}
+    if(fault.Snod <= -1)  {Xval = &graph[id].Cval;}
     else            {Xval = &graph[id].Fval;}
 
-    if(Snod > -1 && Snod == id)
+    if(fault.Snod > -1 && fault.Snod == id)
     {
-        *Xval = Sval;
+        *Xval = fault.Sval;
         *Mark = 1;
         #ifdef DEBUG
             printf("\nFAULT INJECTED AND MARKED!\n");
@@ -225,8 +214,7 @@ void apply_node_inputs(NODE* graph, int id, int* node_input, int Snod, int Sval)
 	return;
 }
 
-//Reads the primary outputs from a graph representing a combinational circuit into an output vector
-int read_circuit_outputs(NODE* graph, int max, char* output_vector, int Snod, int Sval)
+int read_circuit_outputs(NODE* graph, int max, char* output_vector, FAULT fault)
 {
 	//Set output vector to a known string
 	memset(output_vector, 0, Mpo);
@@ -242,7 +230,7 @@ int read_circuit_outputs(NODE* graph, int max, char* output_vector, int Snod, in
 	{
 		if(graph[id].Po) //If node is a primary output
 		{
-		    if(Snod <= -1)
+		    if(fault.Snod <= -1)
             {
                 output_bit = assign_bitvalue_itoc(graph[id].Cval);
             }
@@ -257,18 +245,7 @@ int read_circuit_outputs(NODE* graph, int max, char* output_vector, int Snod, in
 	return output_vector_iter;
 }
 
-int compare_faulty_circuit_outputs_womark(NODE* graph, int max, int Snod, int Sval)
-{
-    char output_vector_faultfree[Mpo];
-    char output_vector_faulty[Mpo];
-    memset(output_vector_faultfree, 0, sizeof(output_vector_faultfree));
-    memset(output_vector_faulty, 0, sizeof(output_vector_faulty));
-    read_circuit_outputs(graph, max, output_vector_faultfree, -1, -1);
-    read_circuit_outputs(graph, max, output_vector_faulty, Snod, Sval);
-    return !!strcmp(output_vector_faultfree, output_vector_faulty);
-}
-
-int compare_faulty_circuit_outputs_wmark(NODE* graph, int max, int Snod, int Sval)
+int compare_faulty_circuit_outputs(NODE* graph, int max, FAULT fault)
 {
     int detected = 0;
 

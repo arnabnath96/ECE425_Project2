@@ -160,8 +160,8 @@ for(i = 0; i < Total; i++) //Iterate over each input vector
         }
 
         sprintf(faulty_type[m], "%i/%i", fault[m].Snod, fault[m].Sval);
-        apply_vector_wfault(graph, Max, temp, input_vector, faulty_output_vector[m], fault[m].Snod, fault[m].Sval);
-        faulty_detected[m] = compare_faulty_circuit_outputs_wmark(graph, Max, fault[m].Snod, fault[m].Sval);
+        apply_vector_wfault(graph, Max, temp, input_vector, faulty_output_vector[m], fault[m]);
+        faulty_detected[m] = compare_faulty_circuit_outputs(graph, Max, fault[m]);
 
         DetectionTable[m][i+1] = faulty_detected[m];
         DetectionTable[m][0] += DetectionTable[m][i+1];

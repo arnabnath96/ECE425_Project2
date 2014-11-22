@@ -245,6 +245,12 @@ while(!feof(ffault)){
 return a;
 }//end of readfaults
 
+FAULT CreateNoFault()
+{
+    FAULT fault = {-1,-1};
+    return fault;
+}
+
 //Helper function to remove spaces from a string of characters
     //NOTE: I DO NOT CLAIM OWNERSHIP OF THIS FUNCTION WHICH WAS DEVELOPED
     //BY SOMEONE ELSE AND MADE FREELY AVAILABLE ON THE INTERNET.
