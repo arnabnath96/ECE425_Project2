@@ -46,7 +46,10 @@ int apply_vector_wfault(NODE* graph, int max, Stack* sorted, char* input_vector,
         }
     }
 
-    apply_circuit_inputs(graph,sorted,input_vector, fault);
+    Stack* sorted_temp = copy_stack(sorted);
+    apply_circuit_inputs(graph,sorted_temp,input_vector, fault);
+    delete_stack(sorted_temp);
+
 	return read_circuit_outputs(graph,max,output_vector, fault);
 }
 

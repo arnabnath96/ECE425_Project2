@@ -2,6 +2,7 @@
 #include "stack.h"
 #include "topological_sort.h"
 #include "simulation.h"
+#include "fault_simulation.h"
 #include "display.h"
 
 #define bzero(b,len) (memset((b), '\0', (len)), (void) 0)
@@ -29,7 +30,7 @@ PATTERN vector[Mpt];
 FAULT fault[Mft];
 
 //random variables
-int a,b,c,d;
+int a;
 
 /*************************************************************************************************
  Read the .isc file and store the information in graph structure
@@ -112,76 +113,14 @@ for(a=0;a<Total;a++){  printf("%d\t%s\n",a,vector[a].piv); }
 //File pointer to open .out file for printing results
 fres=fopen(argv[4],"w");
 
-//Sort nodes in graph in topological order to facilitate simulation
-Stack* topo_sorted = topological_sort(graph,Max);
+//Simulate and store in appropriate data structures
+FaultSimulationTable    sim_table   = RunSimulation(graph, Max, vector, Total, fault, Tfs);
+DetectionTable          det_table   = ConvertFaultSimulationTableToDetectionTable(sim_table);
+FaultTable              fau_table   = ConvertFaultSimulationTableToFaultTable(sim_table);
 
-//Create structures to hold input and output vectors
-char input_vector[Mpi];
-char output_vector[Mpo];
-
-//Create structures to hold data to be printed to screen/file
-char faulty_type[Mft][Mlin];
-char faulty_output_vector[Mft][Mpo];
-int faulty_detected[Mft];
-
-//Flag to store whether a fault can be sensed or not
-int detected_flag;
-
-//Store which patterns detect which faults
-int DetectionTable[Mft][Mpt+1];
-memset(DetectionTable, 0, Mft*(Mpt+1));
-
-//Store a string representation of each fault
-char FaultTable[Mft][Mlin];
-memset(FaultTable, 0, Mft*Mlin);
-
-int i = 0; int j = 0; int m = 0; Stack* temp;
-for(i = 0; i < Total; i++) //Iterate over each input vector
-{
-    //Reset values
-    memset(faulty_type, 0, (Mft+1)*Mlin);
-    memset(faulty_output_vector, 0, (Mft+1)*Mpo);
-    memset(faulty_detected, -1, sizeof(faulty_detected[0])*(Mft+1));
-    detected_flag = 0;
-
-    /**************************************************************************
-     Simulation
-    **************************************************************************/
-
-    for(m = 0; m < Tfs; m++) // Iterate over each fault
-    {
-        temp = copy_stack(topo_sorted);
-        memcpy(input_vector, vector[i].piv, Mpi);
-
-        if(m==0)
-        {
-            apply_vector_wofault(graph, Max, temp, input_vector, output_vector);
-            delete_stack(temp); temp = copy_stack(topo_sorted);
-        }
-
-        sprintf(faulty_type[m], "%i/%i", fault[m].Snod, fault[m].Sval);
-        apply_vector_wfault(graph, Max, temp, input_vector, faulty_output_vector[m], fault[m]);
-        faulty_detected[m] = compare_faulty_circuit_outputs(graph, Max, fault[m]);
-
-        DetectionTable[m][i+1] = faulty_detected[m];
-        DetectionTable[m][0] += DetectionTable[m][i+1];
-
-        memcpy(FaultTable[m], faulty_type[m], Mlin);
-
-        delete_stack(temp);
-    }
-
-    /**************************************************************************
-     Log
-    **************************************************************************/
-
-    print_pattern_table(fres, Tfs, input_vector, output_vector, faulty_type, faulty_output_vector, faulty_detected);
-}
-
-print_detection_table(fres, Total, Tfs, FaultTable, DetectionTable);
-
-//Free stack used to hold topological sort
-delete_stack(topo_sorted);
+//Print simulation results
+print_pattern_table(fres, sim_table);
+print_detection_table(fres, fau_table, det_table);
 
 //Close file pointer for .out file
 fclose(fres);

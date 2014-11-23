@@ -1,5 +1,12 @@
-#include "graph.h"
+#ifndef DISPLAY_H
+#define DISPLAY_H
 
-void print_pattern_table(FILE* fres, int Tfs, char* input_vector, char* output_vector, char faulty_type[][Mlin], char faulty_output_vector[][Mpo], int* faulty_detected);
-void print_detection_table(FILE* fres, int Total, int Tfs, char FaultTable[][Mlin], int DetectionTable[][Mpt+1]);
+#include "graph.h"
+#include "fault_simulation.h"
+
+void print_pattern_table(FILE* fres, FaultSimulationTable table);
+void print_detection_table(FILE* fres, FaultTable fau_table, DetectionTable det_table);
+
 void tee(FILE* file, char* format, ...);
+
+#endif // DISPLAY_H
