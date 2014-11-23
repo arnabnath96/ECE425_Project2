@@ -30,19 +30,28 @@ void print_pattern_table(FILE* fres, FaultSimulationTable table)
     {
         //Print test pattern
         tee(fres, "Test Pattern: %s\n",table.row[j].input_vector);
-        tee(fres, "%-*s%-*s%s\n", maxlength_fault, "Fault", maxlength_pattern, "Output", "Detected");
-        tee(fres, "%-*s%-*s%s\n", maxlength_fault, "None", maxlength_pattern, table.row[j].output_vector, "NA");
+        tee(fres, "%-*s%-*s%s\n",
+            maxlength_fault, "Fault",
+            maxlength_pattern, "Output", "Detected");
+        tee(fres, "%-*s%-*s%s\n",
+            maxlength_fault, "None",
+            maxlength_pattern, table.row[j].output_vector, "NA");
 
         //Print table rows
         for(i = 0; i < table.number_of_faults; i++)
         {
             if(table.row[j].fault_detected[i] == 0 || table.row[j].fault_detected[i] == 1)
             {
-                tee(fres, "%-*s%-*s%s\n",  maxlength_fault, table.row[j].fault_type[i], maxlength_pattern, table.row[j].fault_output[i], table.row[j].fault_detected[i]>0?"Yes":"No");
+                tee(fres, "%-*s%-*s%s\n",
+                    maxlength_fault, table.row[j].fault_type[i],
+                    maxlength_pattern, table.row[j].fault_output[i],
+                    table.row[j].fault_detected[i]>0?"Yes":"No");
             }
             else
             {
-                tee(fres, "%-*s%-*s%s\n",  maxlength_fault, table.row[j].fault_type[i], maxlength_pattern, table.row[j].fault_output[i], "ER");
+                tee(fres, "%-*s%-*s%s\n",
+                    maxlength_fault, table.row[j].fault_type[i],
+                    maxlength_pattern, table.row[j].fault_output[i], "ER");
             }
         }
 
@@ -72,14 +81,16 @@ void print_detection_table(FILE* fres, FaultTable fau_table, DetectionTable det_
     if(maxlength_pattern < 7) maxlength_pattern = 7; maxlength_pattern += 4;
 
     tee(fres,"\n\nNumber of Input Patterns That Detect Each Fault\n");
-    tee(fres,"%-*s%-*s%s\n", maxlength_fault, "Fault", maxlength_pattern, "Patterns", "Detected");
+    tee(fres,"%-*s%-*s%s\n",
+        maxlength_fault, "Fault",
+        maxlength_pattern, "Patterns", "Detected");
+
     for(i = 0; i < fau_table.number_of_faults; i++)
     {
-        tee (   fres,   "%-*s%-*i%s\n",
-                maxlength_fault, fau_table.table_of_faults[i],
-                maxlength_pattern, det_table.row[i].number_of_detecting_patterns,
-                det_table.row[i].number_of_detecting_patterns>0?"Yes":"No"
-            );
+        tee (fres, "%-*s%-*i%s\n",
+             maxlength_fault, fau_table.table_of_faults[i],
+             maxlength_pattern, det_table.row[i].number_of_detecting_patterns,
+             det_table.row[i].number_of_detecting_patterns>0?"Yes":"No");
     }
 
     return;

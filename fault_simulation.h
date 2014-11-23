@@ -63,8 +63,14 @@ typedef struct FaultTable
   Functions
 *************************************************************************************************/
 
-FaultSimulationTable RunSimulation(NODE* graph, int Max, PATTERN* input_vectors, int Total, FAULT* fault, int Tfs);
-FaultSimulationTableRow RunSimulationRow(NODE* graph, int Max, PATTERN input_vector, FAULT* fault, int Tfs);
+FaultSimulationTable RunSimulation(NODE* graph, int max_node_id,
+                                   PATTERN* input_vectors, int total_vectors,
+                                   FAULT* fault, int total_faults);
+
+FaultSimulationTableRow RunSimulationRow(NODE* graph, int max_node_id,
+                                         PATTERN input_vector,
+                                         FAULT* fault, int total_faults);
+
 DetectionTable ConvertFaultSimulationTableToDetectionTable(FaultSimulationTable sim_table);
 FaultTable ConvertFaultSimulationTableToFaultTable(FaultSimulationTable sim_table);
 

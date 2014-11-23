@@ -28,7 +28,9 @@ void set_vector(PATTERN* input_vector, int length, int xval)
 	return;
 }
 
-int apply_vector_wfault(NODE* graph, int max, Stack* sorted, char* input_vector, char* output_vector, FAULT fault)
+int apply_vector_wfault(NODE* graph, int max, Stack* sorted,
+                        char* input_vector, char* output_vector,
+                        FAULT fault)
 {
 	if(isempty_stack(sorted))
 	{
