@@ -11,6 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option parameters="c17.isc c17.vec 1 c17.out c17.faults" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -31,16 +32,18 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="display.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="display.h" />
+		<Unit filename="fault_simulation.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="fault_simulation.h" />
 		<Unit filename="gates.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="gates.h" />
-		<Unit filename="gates_func.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="gates_table.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="graph.c">
 			<Option compilerVar="CC" />
 		</Unit>

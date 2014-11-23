@@ -1,5 +1,5 @@
 CC              = gcc
-SRC             = graph.c main.c simulation.c gates.c stack.c topological_sort.c
+SRC             = graph.c main.c simulation.c gates.c stack.c topological_sort.c fault_simulation.c display.c 
 TARGET          = project
 OBJ             = $(SRC:.c=.o)
 DDDEBUG         =
