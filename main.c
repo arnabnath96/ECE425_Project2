@@ -83,7 +83,7 @@ Tfs=0; Tfs=ReadFaults(ffau,fault);
 fclose(ffau);
 
 //print total number of patterns in .vec file
-printf("\n\nTotal No. of Faults: %d",Tfs);
+printf("\nTotal No. of Faults: %d",Tfs);
 
 //print all members of vector structure
 printf("\n\nStuck-At Faults");
@@ -105,6 +105,8 @@ printf("\nReplacing 'x' with %d...\n", Opt);
 printf("\nInput Vectors with Xval Replacement");
 printf("\nIndex\tInputVector\n");
 for(a=0;a<Total;a++){  printf("%d\t%s\n",a,vector[a].piv); }
+
+printf("\n");
 
 /*************************************************************************************************
  Begin logic simulation and logging

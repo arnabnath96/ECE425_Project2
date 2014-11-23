@@ -93,6 +93,7 @@ void RemoveNewlines(char*);
 ****************************************************************************************************************************/
 int ReadFaults(FILE *,FAULT *);
 FAULT CreateNoFault();
+int IsNoFault(FAULT);
 void RemoveSpaces(char*);
 /***************************************************************************************************************************
 User Defined Functions in user.c

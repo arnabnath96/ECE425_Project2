@@ -53,7 +53,7 @@ return;
 *************************************************************************************************/
 int ReadIsc(FILE *fisc,NODE *graph)
 {
-char c,noty[Mlin],from[Mlin],str1[Mlin],str2[Mlin],name[Mlin],line[Mlin];
+char noty[Mlin],from[Mlin],str1[Mlin],str2[Mlin],name[Mlin],line[Mlin];
 int  i,id,fid,Fin,fout,mid=0;
 
 // intialize all nodes in graph structure
@@ -212,11 +212,10 @@ void RemoveNewlines(char* source)
 /*************************************************************************************************
  Routine to read the .faults files
 *************************************************************************************************/
-#define MAX_FAULTLINE_SIZE 1024
 int ReadFaults(FILE *ffault,FAULT *vector)
 {
 //Holds line read from file
-char line_temp[MAX_FAULTLINE_SIZE];
+char line_temp[Mlin];
 
 //Holds stuck-at information prior to storage in structure
 int Snod_temp;
@@ -225,16 +224,21 @@ int Sval_temp;
 //Iterate over each fault in the file
 int a = 0;
 while(!feof(ffault)){
-  bzero(line_temp,MAX_FAULTLINE_SIZE);
+  bzero(line_temp,Mlin);
   Snod_temp = -1; Sval_temp = -1;
 
-  if(fgets(line_temp, MAX_FAULTLINE_SIZE, ffault))
+  if(fgets(line_temp, Mlin, ffault))
   {
     //Remove any white space from line
     RemoveSpaces(line_temp);
 
     //Break up line into stuck-at node and value
     sscanf(line_temp,"%i/%i",&Snod_temp,&Sval_temp);
+
+    //Check for errors during read process
+    if(Snod_temp <= 0) goto wrong_Snod;
+    if(Sval_temp != 0 && Sval_temp != 1) goto wrong_Sval;
+
     vector[a].Snod = Snod_temp;
     vector[a].Sval = Sval_temp;
 
@@ -243,12 +247,29 @@ while(!feof(ffault)){
   }
 }
 return a;
+
+wrong_Snod:
+    printf("ERROR: In ReadFaults(...): Snod received bad value!\n");
+    fclose(ffault);
+    exit(1);
+wrong_Sval:
+    printf("ERROR: In ReadFaults(...): Sval received bad value!\n");
+    fclose(ffault);
+    exit(1);
 }//end of readfaults
 
 FAULT CreateNoFault()
 {
     FAULT fault = {-1,-1};
     return fault;
+}
+
+int IsNoFault(FAULT fault)
+{
+    if(fault.Snod <= -1)
+        return 1;
+    else
+        return 0;
 }
 
 //Helper function to remove spaces from a string of characters

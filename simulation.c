@@ -6,7 +6,7 @@
 
 #define NO_DEBUG
 
-//Destructively changes all of the unknown values ('x') in a set of input vectors to a given xval.
+//Destructively changes all of the unknown values ('x') in a set of input vectors to a given xval
 void set_vector(PATTERN* input_vector, int length, int xval)
 {
     int i = 0; int j = 0;
@@ -33,12 +33,9 @@ int apply_vector_wfault(NODE* graph, int max, Stack* sorted,
                         FAULT fault)
 {
 	if(isempty_stack(sorted))
-	{
-		printf("STACK: No elements to pop!\n");
-		exit(1);
-	}
+        goto empty_sorted;
 
-	if(fault.Snod >= -1)
+	if(!IsNoFault(fault))
     {
         int a = 0;
         for(a=0; a <= max; a++)
@@ -49,10 +46,14 @@ int apply_vector_wfault(NODE* graph, int max, Stack* sorted,
     }
 
     Stack* sorted_temp = copy_stack(sorted);
-    apply_circuit_inputs(graph,sorted_temp,input_vector, fault);
+    apply_circuit_inputs(graph, sorted_temp, input_vector, fault);
     delete_stack(sorted_temp);
 
 	return read_circuit_outputs(graph,max,output_vector, fault);
+
+empty_sorted:
+    printf("ERROR: In apply_vector_wfault(...): sorted is empty!\n");
+    exit(1);
 }
 
 int apply_vector_wofault(NODE* graph, int max, Stack* sorted, char* input_vector, char* output_vector)
@@ -69,17 +70,17 @@ void apply_circuit_inputs(NODE* graph, Stack* sorted, char* input_vector, FAULT 
 	//Keeps track of inputs to an individual node. NOTE: MEMSET CAN ONLY ASSIGN '0' AND '-1' TO
 	//AN INTEGER ARRAY DUE TO INTERNAL REPRESENTATION OF INTEGERS. '0' IS USED AS A BOOLEAN VALUE
 	//SO '-1' MUST BE USED AS A DEFAULT VALUE.
-    int node_input[Min]; memset(node_input, -1, sizeof(node_input));
+    int node_input[Min]; memset(node_input, -1, Min*sizeof(int));
 
     int id = 0;
     do //Do while there are unprocessed nodes in the graph
 	{
 		id = pop_stack(sorted);
-		get_node_inputs(graph,id,input_vector,&input_vector_iter,node_input, fault);
-        apply_node_inputs(graph,id,node_input, fault);
+		get_node_inputs(graph, id, input_vector, &input_vector_iter, node_input, fault);
+        apply_node_inputs(graph, id, node_input, fault);
 
         // Reset variables
-        memset(node_input, -1, sizeof(node_input));
+        memset(node_input, -1, Min*sizeof(int));
     } while(!isempty_stack(sorted));
 
 	return;
@@ -110,7 +111,7 @@ void get_node_inputs(NODE* graph, int id, char* input_vector, int* input_vector_
 				int i = 0;
 				for(i = 0; i <= (number_of_fanin-1); i++) //Iterate over fanin nodes
 				{
-				    if(fault.Snod <= -1)
+				    if(IsNoFault(fault))
                     {
                         node_input[i] = graph[current_fanin->id].Cval;
                     }
@@ -137,7 +138,7 @@ void get_node_inputs(NODE* graph, int id, char* input_vector, int* input_vector_
 			}
 		case FROM  :
 			{
-			    if(fault.Snod <= -1)
+			    if(IsNoFault(fault))
                 {
                     node_input[0] = graph[graph[id].Fin->id].Cval;
                 }
@@ -166,12 +167,9 @@ void get_node_inputs(NODE* graph, int id, char* input_vector, int* input_vector_
 void apply_node_inputs(NODE* graph, int id, int* node_input, FAULT fault)
 {
     int* Mark = &(graph[id].Mark);
+    int* Xval = IsNoFault(fault) ? &graph[id].Cval : &graph[id].Fval;
 
-    int* Xval = 0;
-    if(fault.Snod <= -1)  {Xval = &graph[id].Cval;}
-    else            {Xval = &graph[id].Fval;}
-
-    if(fault.Snod > -1 && fault.Snod == id)
+    if(!IsNoFault(fault) && fault.Snod == id)
     {
         *Xval = fault.Sval;
         *Mark = 1;
@@ -227,7 +225,7 @@ int read_circuit_outputs(NODE* graph, int max, char* output_vector, FAULT fault)
 	//Keeps track of bits in output vector that are already assigned
 	int output_vector_iter = 0;
 
-	//Keeps track of inputs to an individual node.
+	//Keeps track of output from an individual node.
 	char output_bit = 0;
 
     int id = 0;
@@ -235,7 +233,7 @@ int read_circuit_outputs(NODE* graph, int max, char* output_vector, FAULT fault)
 	{
 		if(graph[id].Po) //If node is a primary output
 		{
-		    if(fault.Snod <= -1)
+		    if(IsNoFault(fault))
             {
                 output_bit = assign_bitvalue_itoc(graph[id].Cval);
             }

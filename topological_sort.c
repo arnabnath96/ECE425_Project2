@@ -2,7 +2,7 @@
 #include "graph.h"
 #include "stack.h"
 
-//Control function that calls the recursive depth-first traversal function responsible for 
+//Control function that calls the recursive depth-first traversal function responsible for
 //topological sort algorithm with nodes that have no predecessors.
 Stack* topological_sort(NODE* graph, int max)
 {
@@ -17,7 +17,16 @@ Stack* topological_sort(NODE* graph, int max)
 			depthfirst_traversal(graph, visited, sorted, id);
 		}
 	}
+
+	if(isempty_stack(sorted))
+        goto empty_stack;
+
 	return sorted;
+
+empty_stack:
+    printf("ERROR: In topological_sort(...): sorted is empty!\n");
+    exit(1);
+
 }
 
 //Determines the topological sort of a graph based on the post-order time algorithm presented in

@@ -1,11 +1,9 @@
+#include <assert.h>
+#include <stdarg.h>
+
 #include "display.h"
 #include "graph.h"
 #include "fault_simulation.h"
-#include "stdarg.h"
-
-char faulty_type[Mft][Mlin];
-char faulty_output_vector[Mft][Mpo];
-int faulty_detected[Mft];
 
 void print_pattern_table(FILE* fres, FaultSimulationTable table)
 {
@@ -19,14 +17,14 @@ void print_pattern_table(FILE* fres, FaultSimulationTable table)
         maxlength_fault = (j > maxlength_fault) ? j : maxlength_fault;
     }
 
-    //Determine the maximum length of input patterns
+    //Determine the maximum length of output patterns
     maxlength_pattern = strlen(table.row[0].output_vector);
 
     //Ensure that maximum lengths are of a minimum value and increment
     if(maxlength_fault < 5) maxlength_fault = 5; maxlength_fault += 4;
-    if(maxlength_pattern < 6) maxlength_pattern = 7; maxlength_pattern += 4;
+    if(maxlength_pattern < 7) maxlength_pattern = 7; maxlength_pattern += 4;
 
-    for(j = 0; j <table.number_of_patterns; j++)
+    for(j = 0; j < table.number_of_patterns; j++)
     {
         //Print test pattern
         tee(fres, "Test Pattern: %s\n",table.row[j].input_vector);
