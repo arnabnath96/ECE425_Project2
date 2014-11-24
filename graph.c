@@ -287,4 +287,16 @@ void RemoveSpaces(char* source)
   }
   *i = 0;
 }
+
+/*************************************************************************************************
+ General Functions
+*************************************************************************************************/
+//Helper function to check if a file exists
+    //NOTE: I DO NOT CLAIM OWNERSHIP OF THIS FUNCTION WHICH WAS DEVELOPED
+    //BY SOMEONE ELSE AND MADE FREELY AVAILABLE ON THE INTERNET.
+int FileExists (char *fpt)
+{
+  struct stat   buffer;
+  return (stat (fpt, &buffer) == 0);
+}
 /*************************************************************************************************/

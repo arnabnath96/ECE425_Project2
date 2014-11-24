@@ -6,14 +6,31 @@
 #include "display.h"
 
 #define bzero(b,len) (memset((b), '\0', (len)), (void) 0)
-
-#define NODEBUG
+#define NUMBER_OF_ARGS 5
+#define NO_DEBUG
 
 /*************************************************************************************************
  Main Function(Serial and Parallel Fault Simulation)
 *************************************************************************************************/
 int main(int argc,char **argv)
 {
+
+if(argc != NUMBER_OF_ARGS+1)
+{
+    printf("ERROR: In main(...): The correct number of arguments has not been passed!\n");
+    exit(1);
+}
+
+if((FileExists(argv[1]) && FileExists(argv[2]) && FileExists(argv[5])) == 0)
+{
+    printf("ERROR: In main(...): One of the filenames does not exist!\n");
+    exit(1);
+}
+
+/*************************************************************************************************
+ Declare variables
+*************************************************************************************************/
+
 //file pointers used for .isc file, .vec file, .faults file and resultfile
 FILE *fisc,*fvec,*ffau,*fres;
 
