@@ -28,7 +28,7 @@ main.c - Main executable unit. Contains code that reads program parameters from 
 
 graph.h, graph.c - Contains definitions of a linked list, graph node, input vector, and fault and functions that interact with the structures. Additionally contains a number of constants and helper functions.
 
-stack.h, stack.c - Contains definitions of a simple stack node and a simple stack capable of storing integers. The stack is capable of push, pop, print, construction, copy, and destruction operations and also includes an emptiness check.
+stack.h, stack.c - Contains definitions of a simple stack node and a simple stack capable of storing integers. The stack is capable of push, pop, print, construction, copy, and destruction operations and also includes an emptiness check. The stack is used to store a topographical sort of the nodes in the netlist.
 
 topological_sort.h, topological_sort.c - Contains functions used to sort a graph representing a combinational circuit in topological order. The output of the topological sort operation is a stack of identifiers for nodes in the graph ordered from first nodes in the topological sort (top of stack; inputs of circuit) to last nodes in the topological sort (bottom of stack; outputs of circuit).
 
